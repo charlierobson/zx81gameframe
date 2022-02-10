@@ -45,7 +45,6 @@ _jsval=$+1
 	and		(hl)					; and with js mask, 0 if dirn pressed
 	sub		1						; carry set if result was 0. DEC doesnt affect carry :(
 	rl		e						; js result: 1 if dirn detected
-
 	inc		hl						; -> kb port address
 	ld		b,(hl)
 	in		a,(c)					; get key input bits

@@ -4,6 +4,7 @@
 
 _run:
 	call	INPUT._settitle
+	call	clearscreen
 
 	ld		hl,_text
 	ld		de,dfile+1
@@ -12,9 +13,8 @@ _run:
 
 	ld		b,100
 
-_loop:
-	call	framesync
-	djnz	_loop
+-:	call	framesync
+	djnz	{-}
 
 	ret
 

@@ -9,7 +9,7 @@ _run:
 	ld		(frames),hl
 
 _redraw:
-	; return here after displaying another screen, instructions or redefinition
+	call	clearscreen
 
 _loop:
 	call	framesync
