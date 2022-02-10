@@ -54,6 +54,8 @@ _line1:
 	.word	_line1end-$-2
 	.byte	$ea
 
+	; this is a typical game program cycle.
+
 -:	call	TITLE._run
 	call	GAME._run
     call    GAMEOVER._run
@@ -100,4 +102,5 @@ _var:
 	.byte	080H
 _last:
 
+.endmodule
 	.end

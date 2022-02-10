@@ -105,3 +105,5 @@ _down	= _gameinput + 7
 _left	= _gameinput + 11
 _right	= _gameinput + 15
 _fire	= _gameinput + 19
+
+.endmodule

@@ -46,11 +46,26 @@ invertscreen:
 	ret
 
 
+
+clearscreen:
+	ld		hl,dfile+1
+	ld		c,24
+	xor		a
+
+--:	ld		b,32
+
+-:	ld		(hl),a
+	inc		hl
+	djnz	{-}
+
+	inc		hl
+	dec		c
+	jr		nz,{--}
+	ret
+
+
 seedrnd:
-	ld		a,r
-	ld		l,a
-	ld		a,r
-	ld		h,a
+	ld		hl,(frames)
 	ld		(_rndseed),hl
 	ret
 
@@ -89,3 +104,6 @@ xrnd16:
 
 _rndseed:
 	.word	0
+
+
+.endmodule

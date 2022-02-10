@@ -24,3 +24,5 @@ _text:
 			;--------========--------========
 	.asc	"instructions screen. press fire."
 _textend:
+
+.endmodule

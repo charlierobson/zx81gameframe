@@ -9,6 +9,7 @@ _run:
 	ld		(frames),hl
 
 _redraw:
+	; return here after displaying another screen, instructions or redefinition
 
 _loop:
 	call	framesync
@@ -29,7 +30,7 @@ _loop:
 
 _nochangetext:
 	ld		a,(frames)
-	and		16
+	and		16						; new text is chosen every 32 frames, invert every 16
 	jr		nz,_noflash
 
 	ld		hl,dfile+1
@@ -41,8 +42,8 @@ _nochangetext:
 
 _noflash:
 	ld		a,(INPUT._redef)
-	and		%00000011				; check for key just released
-	cp		%00000010
+	and		3						; check for key just released
+	cp		2						; %xxxxxx10    pressed last frame, not pressed this
 	jr		nz,{+}
 
 	call	REDEFINE._run
@@ -50,8 +51,8 @@ _noflash:
 
 +:
 	ld		a,(INPUT._instr)
-	and		%00000011
-	cp		%00000010
+	and		3
+	cp		2
 	jr		nz,{+}
 
 	call	INSTRUCTIONS._run
@@ -59,8 +60,10 @@ _noflash:
 
 +:	ld		a,(INPUT._begin)
 	and		3
-	cp		1
+	cp		1						; %xxxxxx01    not pressed last frame, pressed this
 	jr		nz,_loop
+
+	call	seedrnd
 
 	ret
 
@@ -72,3 +75,5 @@ _titletextlist:
 _t1	.asc	"      i for instructions        "
 _t2	.asc	"         fire to start          "
 _t3	.asc	"      r to redefine keys        "
+
+.endmodule

@@ -23,3 +23,5 @@ _text:
 			;--------========--------========
 	.asc	"game over.                      "
 _textend:
+
+.endmodule

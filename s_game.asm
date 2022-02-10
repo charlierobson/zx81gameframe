@@ -26,3 +26,5 @@ _text:
 			;--------========--------========
 	.asc	"game.        press fire to lose."
 _textend:
+
+.endmodule
