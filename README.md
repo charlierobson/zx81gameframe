@@ -47,17 +47,26 @@ mygreatcode:            ; globally accessible
 _mylocaldata:           ; local label
     ...
 
+---- DEF.ASM
+.module DEF
+
+    ...
+_mylocaldata:           ; local label
+    ...
+
+
 ---- MAIN.ASM
     ...
     call mygreatcode            ; woop!
     ...
     ld   hl,ABC._mylocaldata    ; double woop!
+    ld   de,DEF._mylocaldata    ; double double woop!
     ...
 ```
 
-You can call the function as normal from any source file/module. Failing to prefix the underscored label however will result in a label not found error. If you want to go deeper visit the BRASS documentation. It's good.
+You can call the function as normal from any source file/module. Here you see two variables with the same name being accessed unambiguously.
 
-"Why'd you do this madness!" I hear you ask. Well, any sufficiently large program will have a _lot_ of labels, and by constrining them to have a local scope means you can re-use the names in many modules, without having to arbitrarily prefix the label name with some random word or number in order to avoid clashes elsewhere. Trust me, it's good.
+"Why'd you do this madness!" I hear you ask. Well, any sufficiently large program will have a _lot_ of labels, and by constraining them to have a local scope means you can re-use the names in many modules, without having to arbitrarily prefix the label name with some random word or number in order to avoid clashes elsewhere. Trust me, it's good. Just remember to start your file with `.module ...` and end it with `.endmodule`. You don't _technically_ need to end the module - the next module definition to come along will kinda do that for you - but it's good practice.
 
 One thing you'll find all over the shop is the use of temporary labels. These are markers that are valid until another of the same type is encountered. Ex:
 
