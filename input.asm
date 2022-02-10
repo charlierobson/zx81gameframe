@@ -59,6 +59,61 @@ _update:
 	ret
 
 
+; Get the name of the key using the half row port address and column mask
+;  from an input structure pointed at by hl
+; Returns with pointer to high-bit terminated string in hl
+;
+_getkeynameptr:
+	ld		a,(hl)					; keyboard port number / hlaf row address
+	neg								; active low to active hi
+	call	_bit2index
+	ld		a,b						; a = b * 5
+	sla		a
+	sla		a
+	add		b
+	ld		e,a						; stash partial result
+	inc		hl						; -> column mask
+	ld		a,(hl)
+	call	_bit2index
+	add		e						; full result
+	ld		hl,_keynametable
+	call	addatohl				; pointer to character
+	bit		6,(hl)					; check if it's a wide name
+	ret		z						; return if not wide
+	ld		a,(hl)					; get index of wide name
+	and		63
+	ld		hl,_keynametablewide	
+	jp		adda2hl
+
+
+
+_bit2index:
+	ld		bc,7
+-:	rra								; shift bit 0 into carry
+	ret		c						; return with bit number in B if C set
+	inc		b						; next bit 
+	dec		c
+	jr		nz,{-}
+	ret
+
+
+
+_keynametable:
+	.byte	64						; marker bit 6 + offset into _keynametablewide
+	.asc	"ZXCV"
+	.asc	"ASDFG"
+	.asc	"QWERT"
+	.asc	"12345"
+	.asc	"09876"
+	.asc	"POIUY"
+	.byte	64+5
+	.asc	"LKJH"
+	.byte	64+10,$9b				; $9b = inverse period
+	.asc	"MNB"
+_keynametablewide:
+	.asc	"shifTnewlNspacE"
+
+
 ;	-input port- 			-bit-
 ;							4  3  2  1  0
 
@@ -69,7 +124,7 @@ _update:
 ;	$EF %11101111			6, 7, 8, 9, 0	
 ;	$DF %11011111			Y, U, I, O, P	
 ;	$BF %10111111			H, J, K, L, NL	
-;	$7F %01111111			B, N, M, ., SP	
+;	$7F %01111111			B, N, M, ., SP
 ;
 ; input state data:
 ;
