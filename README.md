@@ -59,3 +59,30 @@ You can call the function as normal from any source file/module. Failing to pref
 
 "Why'd you do this madness!" I hear you ask. Well, any sufficiently large program will have a _lot_ of labels, and by constrining them to have a local scope means you can re-use the names in many modules, without having to arbitrarily prefix the label name with some random word or number in order to avoid clashes elsewhere. Trust me, it's good.
 
+One thing you'll find all over the shop is the use of temporary labels. These are markers that are valid until another of the same type is encountered. Ex:
+
+```
+    ...
+-:  some code
+    some code
+    jr   {-}
+    ...
+    ...
+-:  more code
+    more code
+    jr   {-}
+```
+
+Here we see a temporary label in use then later in the same code another is encountered. There is no ambiguity about which label is which, the second one becomes active as soon as it's declared. You can go forward as well as backward:
+
+```
+    ...
+    jr   {+}
+    some code
++:  some code
+    ...
+```
+
+It should be obvious that temporary labels are useful for localised loops and skips. When you have nested loops or jumps over a large distance you should probably use text labels. Similarly if you like to use nice descriptive accurate label names to document the code as you go then this is always encouraged..!
+
+Temporary labels are great, and they have other powers too, see the BRASS documentation.
