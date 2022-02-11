@@ -16,10 +16,10 @@ _run:
 	ld		bc,31
 	ldir
 
-	ld		hl,INPUT._gameinput+1
+	ld		hl,INPUT._gameinput+1	; start redefining here, with first game key
 	ld		(_keyaddress),hl
 
-	ld		hl,dfile+1+3*33
+	ld		hl,dfile+1+3*33			; here's where we'll draw the texts
 	ld		(_screenaddress),hl
 
 	ld		hl,_upk					; these need to be in same order as inputs in table, u,d,l etc.
@@ -34,7 +34,7 @@ _run:
 	ld		hl,(INPUT._fire-2)		; copy fire button definition to title screen input states
 	ld		(INPUT._begin-2),hl
 
-	ld		b,50
+	ld		b,50					; pause a second
 
 -:	call	framesync
 	djnz	{-}
@@ -44,13 +44,13 @@ _run:
 
 
 _redeffit:
-	ld		hl,(_nameaddress)
-	ld		de,dfile+16				; copy key text to screen
+	ld		hl,(_nameaddress)		; copy key text to screen
+	ld		de,dfile+16
 	ld		bc,5
 	ldir
 
 _loop:
-	call	framesync
+	call	framesync				; wait for a keypress
 	call	_getcolbit
 	cp		$ff
 	jr		z,_loop
@@ -58,12 +58,14 @@ _loop:
 	xor		$ff						; flip bits to create column mask
 	ld		c,a						; column mask in c, port num in b from getcolbit
 
+	; prevent user from using the same key for multiple buttons
+
 	ld		hl,INPUT._gameinput+1
 	ld		de,(_keyaddress)
 
 _testnext:
-	and		a
-	sbc		hl,de					; done when we are about to check the current input state
+	and		a						; done checking when we are about to check the current input state
+	sbc		hl,de
 	jr		z,_oktogo
 
 	add		hl,de					; otherwise check to see if port/mask combo is already used
@@ -76,29 +78,32 @@ _testnext:
 	cp		c
 	jr		nz,_nomatchport
 
-	ld		b,4						; combo already used, warn user
+	ld		b,4						; combo already used, warn user by flashing screen
 -:  call    framesync
 	ld		e,b
 	call	invertscreen
 	ld		b,e
 	djnz	{-}
 
-	call	_waitnokey
+	call	_waitnokey				; try try again
 	jr		_loop
 
 _nomatchport:
-	inc		hl
+	inc		hl						; -> next input state
 	inc		hl
 	inc		hl
 	jr		_testnext
 
+
 _oktogo:
-	ld		hl,(_keyaddress)					; store the redefined key data back into the input structure
+	ld		hl,(_keyaddress)		; store the redefined key data back into the input structure
 	ld		(hl),b
 	inc		hl
 	ld		(hl),c
 
-	ld		hl,(_nameaddress)					; zero out the key name part of the name string, "fire  space" -> "fire       " 
+	; update the key descriptions
+
+	ld		hl,(_nameaddress)		; zero out the key name part of the name string, "fire  space" -> "fire       " 
 	ld		de,6
 	add		hl,de
 	push	hl
@@ -109,12 +114,12 @@ _oktogo:
 	inc		de
 	ldir
 
-	ld		hl,(_keyaddress)					; get pointer to HBT string of key name
+	ld		hl,(_keyaddress)		; get pointer to HBT string of key name
 	call	INPUT._getkeynameptr
 
-	pop		de									; -> name string + 6
+	pop		de						; -> name string + 6
 
--:	ld		a,(hl)								; write the key name into the key string
+-:	ld		a,(hl)					; write the key name into the key string
 	inc		hl
 	ld		b,a
 	res		7,a
@@ -123,15 +128,15 @@ _oktogo:
 	bit		7,b
 	jr		z,{-}
 
-	ld		hl,(_nameaddress)					; copy name to screen
+	ld		hl,(_nameaddress)		; copy name to screen
 	ld		de,(_screenaddress)
 	ld		bc,11
 	ldir
 
-	ld		(_nameaddress),hl					; -> next name string
+	ld		(_nameaddress),hl		; -> next name string
 	ld		hl,33-11
 	add		hl,de
-	ld		(_screenaddress),hl					; -> next screen line
+	ld		(_screenaddress),hl		; -> next screen line
 
 	ld		hl,(_keyaddress)
 	ld		de,4
