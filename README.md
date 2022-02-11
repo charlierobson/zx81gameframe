@@ -95,3 +95,82 @@ Here we see a temporary label in use then later in the same code another is enco
 It should be obvious that temporary labels are useful for localised loops and skips. When you have nested loops or jumps over a large distance you should probably use text labels. Similarly if you like to use nice descriptive accurate label names to document the code as you go then this is always encouraged..!
 
 Temporary labels are great, and they have other powers too, see the BRASS documentation.
+
+
+## Higher level functionality
+
+### The input system
+
+The input system is logically arranged as a number of buttons. At any time you can tell whether the button:
+* Is not pressed
+* Has just been pressed
+* Is held
+* Has just been released
+
+The button has an 8 frame memory of its past inputs, held in a single byte. Every time the input is read it will shift the state memory along one and insert the current state as bit 0. This is how you can determine all of the states mentioned above. 
+
+For example:
+
+|Input byte|Meaning|
+| :-: | :- |
+| %00000000 | Button not pressed for 8 frames |
+| %00000001 | Button just pressed |
+| %00000010 | Button just released |
+| %00011111 | Button held for 3 frames |
+
+In code you would simply look at the 2 least significant bits to determine a number of states. 01 is just pressed, 10 just released etc.
+
+Each button can be represented by a key, joystick or both. Neither makes no sense here. The joystick in this case is the ZXpand joystick, but the code could be altered for other input types. The button is defined in a 5 byte structure:
+
+```
+	.byte	%00001000,$7F,%00000001,0		; startgame
+```
+
+|Byte|Meaning|
+| :-: | :- |
+|0|Joystick switch mask|
+|1|Keyboard half row input port address|
+|2|Keyboard column bit mask|
+|3|key state|
+
+For ZXpand the joystick bits are:
+```
+7 6 5 4 3 2 1 0
+U D L R F - - -
+```
+
+The keyboard is mapped like so:
+
+|Half row port address|Column bit mapping|
+| :-: | :- |
+|$FE|- - - V C X Z SHIFT|	
+|$FD|- - - G F D S A|
+|$FB|- - - T R E W Q|
+|$F7|- - - 5 4 3 2 1|
+|$EF|- - - 6 7 8 9 0|
+|$DF|- - - Y U I O P|
+|$BF|- - - H J K L NEWLINE|	
+|$7F|- - - B N M . SPACE|
+
+So referring back to the example entry above you see this button is mapped to:
+* joystick bit 3 (%00001000)
+  * which from the table above is the fire button.
+* half row $7f, bit 0 (%00000001)
+  * which from the table above yields SPACE
+
+To ignore a joystick direction or key for a button you simply use the mask $FF, %11111111. Ignored keys should still use a valid half row port address.
+
+Ignore joystick:
+```
+	.byte	%11111111,$7F,%00000001,0		; startgame
+```
+Ignore key:
+```
+	.byte	%00001000,$7F,%11111111,0		; startgame
+```
+
+There are 5 buttons declared at present and you are, of course, at liberty to add or remove at your pleasure. If you do this, however, be sure to update the start of the INPUT._read method to call the correct number of updates. The code is structured such that the last update is a fall-through into the update routine, saving a CALL/RET cost.
+
+Ideally you would call INPUT._read at the start of every game loop. You can of course do this in your main loop, straight after any frame synchronisation that you might do. However the input routine has been written to have a constant run time, coming in at 724 t-states at last count. This is about the right length to replace the built-in key scanning in the display routine's vertical sync interrupt. If you change the number of buttons the change in processing time will need to be considered.
+
+Functions exist for taking a port/mask pair and resolving them to a key name. This is used by the redefinition code. It's fairly straight forward so I won't explain it.
