@@ -23,18 +23,12 @@ _run:
 	ld		(_screenaddress),hl
 
 	ld		hl,_upk					; these need to be in same order as inputs in table, u,d,l etc.
-	call	_redeffit
+	ld		(_nameaddress),hl
 
-	ld		hl,_dnk
 	call	_redeffit
-
-	ld		hl,_lfk
 	call	_redeffit
-
-	ld		hl,_rtk
 	call	_redeffit
-	
-	ld		hl,_frk
+	call	_redeffit
 	call	_redeffit
 
 	ld		hl,(INPUT._fire-2)		; copy fire button definition to title screen input states
@@ -50,7 +44,7 @@ _run:
 
 
 _redeffit:
-	ld		(_nameaddress),hl
+	ld		hl,(_nameaddress)
 	ld		de,dfile+16				; copy key text to screen
 	ld		bc,5
 	ldir
@@ -99,28 +93,28 @@ _nomatchport:
 	jr		_testnext
 
 _oktogo:
-	ld		hl,(_keyaddress)
-	push	hl
+	ld		hl,(_keyaddress)					; store the redefined key data back into the input structure
 	ld		(hl),b
 	inc		hl
 	ld		(hl),c
-	inc		hl
-	inc		hl
-	inc		hl
-	ld		(_keyaddress),hl
 
-	ld		hl,(_nameaddress)
-	ld		de,(_screenaddress)
-	ld		bc,5
-	ldir
-	inc		de
-
-	pop		hl
-	push	de
-	call	INPUT._getkeynameptr
+	ld		hl,(_nameaddress)					; zero out the key name part of the name string, "fire  space" -> "fire       " 
+	ld		de,6
+	add		hl,de
+	push	hl
 	pop		de
+	push	de
+	ld		bc,4
+	ld		(hl),0
 	inc		de
--:	ld		a,(hl)
+	ldir
+
+	ld		hl,(_keyaddress)					; get pointer to HBT string of key name
+	call	INPUT._getkeynameptr
+
+	pop		de									; -> name string + 6
+
+-:	ld		a,(hl)								; write the key name into the key string
 	inc		hl
 	ld		b,a
 	res		7,a
@@ -128,10 +122,21 @@ _oktogo:
 	inc		de
 	bit		7,b
 	jr		z,{-}
-	ld		hl,(_screenaddress)
-	ld		de,33
+
+	ld		hl,(_nameaddress)					; copy name to screen
+	ld		de,(_screenaddress)
+	ld		bc,11
+	ldir
+
+	ld		(_nameaddress),hl					; -> next name string
+	ld		hl,33-11
 	add		hl,de
-	ld		(_screenaddress),hl
+	ld		(_screenaddress),hl					; -> next screen line
+
+	ld		hl,(_keyaddress)
+	ld		de,4
+	add		hl,de
+	ld		(_keyaddress),hl
 
 _waitnokey:
 	call	framesync
@@ -167,14 +172,14 @@ _pkf:
 			;--------========--------========
 	.asc	"press key for:                  "
 _upk:
-	.asc	"up   "
+	.asc	"up    q    "
 _dnk:
-	.asc	"down "
+	.asc	"down  a    "
 _lfk:
-	.asc	"left "
+	.asc	"left  o    "
 _rtk:
-	.asc	"right "
+	.asc	"right p    "
 _frk:
-	.asc	"fire  "
+	.asc	"fire  space"
 
 .endmodule
