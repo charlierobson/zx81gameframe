@@ -12,7 +12,6 @@ _run:
 
 _loop:
 	call	framesync
-	call	INPUT._read
 
 	ld		a,(INPUT._up)
 	ld		de,dfile+1+4*33

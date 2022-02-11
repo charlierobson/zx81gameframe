@@ -54,6 +54,10 @@ _line1:
 	.word	_line1end-$-2
 	.byte	$ea
 
+	; enable our custom display handler. runs input processing in the vertical
+	; sync and enables use of IY register.
+	ld 		ix,DISPLAY._GENERATE
+
 	; this is a typical game program cycle.
 
 -:	call	TITLE._run
@@ -73,6 +77,7 @@ _line1:
 
 	.include general.asm
 	.include input.asm
+	.include displaydriver.asm
 
 
 dfile:

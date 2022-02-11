@@ -13,7 +13,6 @@ _redraw:
 
 _loop:
 	call	framesync
-	call	INPUT._read
 
 	ld		a,(frames)	; AB------
 	rlca				; -------A

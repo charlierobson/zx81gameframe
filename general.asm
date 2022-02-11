@@ -10,6 +10,8 @@ adda2hl:
 	ret
 
 
+; Gets a word from a table at offset in a, table base in hl
+;
 tableget:
 	call	adda2hl
 	ld		a,(hl)
@@ -25,7 +27,6 @@ framesync:
 -:	cp		(hl)
 	jr		z,{-}
 	ret
-
 
 
 invertscreen:
@@ -44,7 +45,6 @@ invertscreen:
 	dec		c
 	jr		nz,{--}
 	ret
-
 
 
 clearscreen:

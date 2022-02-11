@@ -1,3 +1,35 @@
+.endasm
+
+This file configures the assembler's '.asc' data macro to translate between ascii
+and zx81 character set values.
+
+whenever you see:
+
+    .asc    "a message"
+
+the output will be a character stream in the ZX81 character set. Useful!
+
+Be aware that only .asc converts, regular data defines such as .byte don't. So:
+
+    .asc    "A"
+
+does not equal
+
+    .byte   'A'
+
+The output of .asc can be used in expressions as it yields a value. So the following
+is valid:
+
+    .asc    "A"+$80
+
+See the assembler manual for all the nitty gritty.
+
+I have mapped upper case alpha characters to their inverses, but it's not super
+useful I'll admit, as you will still need to manually translate the puntuation and
+numbers etc.
+
+.asm
+
     .asciimap 0,255,$0f             ; default case, '?'
     .asciimap ' ',' ',0
     .asciimap '"','"',$0b

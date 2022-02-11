@@ -28,7 +28,6 @@ _run:
 
 _loop:
 	call	framesync
-	call	INPUT._read
 
 	ld		a,(INPUT._begin)
 	and		3
