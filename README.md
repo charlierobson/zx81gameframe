@@ -17,9 +17,13 @@ So for this framework you'd probably type:
 brass a_main.asm mygame.p -s -l mygame.html
 ```
 
-The -s switch enabled case sensitivity. You need to be sensitive. It's just good practice. One day you'll use linux and you'll thank me.
+The -s switch enables case sensitivity. You need to be sensitive. It's just good practice. One day you'll use linux and you'll thank me.
 
-The html listing file is a great resource when debugging, as is the .sym file that is generated alongside your binary. This can be used in a debugger to see symbols instead of numbers when disassembling or stepping through the code. In EightyOne for example, just drag and drop the .sym file onto the main window and the debugger will then use them.
+The html listing file is a great resource when debugging, as is the .sym file that is generated alongside your binary. This can be used in a debugger to see symbols instead of numbers when disassembling or stepping through the code. In EightyOne for example, just drag and drop the .sym file onto the main window and the debugger will then use them. The symbol file is enabled in the first few lines of a_main. BRASS can output a number of different formats, I'm using NO$GMB.
+```
+	.exportmode NO$GMB
+	.export
+```
 
 The main file is called a_main, simply so it shows at the top of an alphabetically sorted listing. It contains the basic stuff needed to make a ZX81 auto-running 'P' type file:
 * The System variables
@@ -68,7 +72,7 @@ In this example you can call the function as normal from any source file/module.
 
 "Oh SirMorris! Why'd you do this madness!" I hear you ask. Well, any sufficiently large program will have a _lot_ of labels, and by constraining them to have a local scope means you can re-use the names in many modules, without having to arbitrarily prefix the label name with some random word or number in order to avoid clashes elsewhere. Trust me, it's good. Just remember to start your file with `.module ...` and end it with `.endmodule`. You don't _technically_ need to end the module - the next module definition to come along will kinda do that for you - but it's good practice.
 
-Another thing you'll find all over the shop is the use of temporary labels. These are markers that are valid until another of the same type is encountered. Ex:
+Another thing you'll find all over the shop is the use of temporary labels. These are markers that are valid until another of the same type is encountered. Types are forward ('+') and backward ('-'). Ex:
 
 ```
     ...
@@ -116,7 +120,7 @@ For example:
 | %00000000 | Button not pressed for 8 frames |
 | %00000001 | Button just pressed |
 | %00000010 | Button just released |
-| %00011111 | Button held for 3 frames |
+| %00011111 | Button held for 5 frames |
 
 In code you would simply look at the 2 least significant bits to determine a number of states. 01 is just pressed, 10 just released etc.
 
