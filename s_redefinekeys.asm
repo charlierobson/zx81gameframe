@@ -19,6 +19,9 @@ _run:
 	ld		hl,INPUT._gameinput+1
 	ld		(_keyaddress),hl
 
+	ld		hl,dfile+1+3*33
+	ld		(_screenaddress),hl
+
 	ld		hl,_upk					; these need to be in same order as inputs in table, u,d,l etc.
 	call	_redeffit
 
@@ -36,10 +39,18 @@ _run:
 
 	ld		hl,(INPUT._fire-2)		; copy fire button definition to title screen input states
 	ld		(INPUT._begin-2),hl
+
+	ld		b,50
+
+-:	call	framesync
+	djnz	{-}
+
 	ret
 
 
+
 _redeffit:
+	ld		(_nameaddress),hl
 	ld		de,dfile+16				; copy key text to screen
 	ld		bc,5
 	ldir
@@ -89,6 +100,7 @@ _nomatchport:
 
 _oktogo:
 	ld		hl,(_keyaddress)
+	push	hl
 	ld		(hl),b
 	inc		hl
 	ld		(hl),c
@@ -96,6 +108,30 @@ _oktogo:
 	inc		hl
 	inc		hl
 	ld		(_keyaddress),hl
+
+	ld		hl,(_nameaddress)
+	ld		de,(_screenaddress)
+	ld		bc,5
+	ldir
+	inc		de
+
+	pop		hl
+	push	de
+	call	INPUT._getkeynameptr
+	pop		de
+	inc		de
+-:	ld		a,(hl)
+	inc		hl
+	ld		b,a
+	res		7,a
+	ld		(de),a
+	inc		de
+	bit		7,b
+	jr		z,{-}
+	ld		hl,(_screenaddress)
+	ld		de,33
+	add		hl,de
+	ld		(_screenaddress),hl
 
 _waitnokey:
 	call	framesync
@@ -119,6 +155,12 @@ _getcolbit:
 
 
 _keyaddress:
+	.word	0
+
+_screenaddress:
+	.word	0
+
+_nameaddress:
 	.word	0
 
 _pkf:

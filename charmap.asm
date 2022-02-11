@@ -18,4 +18,4 @@
     .asciimap '.','.',$1b
     .asciimap '0','9',{*}-'0'+$1c
     .asciimap 'a','z',{*}-'a'+$26
-    .asciimap 'A','Z',{*}-'A'+$26
+    .asciimap 'A','Z',{*}-'A'+$A6

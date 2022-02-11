@@ -64,20 +64,21 @@ _update:
 ; Returns with pointer to high-bit terminated string in hl
 ;
 _getkeynameptr:
-	ld		a,(hl)					; keyboard port number / hlaf row address
-	neg								; active low to active hi
+	ld		a,(hl)					; keyboard port number / half row address
+	xor		$ff						; active low to active hi
 	call	_bit2index
 	ld		a,b						; a = b * 5
 	sla		a
 	sla		a
-	add		b
+	add		a,b
 	ld		e,a						; stash partial result
 	inc		hl						; -> column mask
 	ld		a,(hl)
 	call	_bit2index
-	add		e						; full result
+	ld		a,b
+	add		a,e						; full result
 	ld		hl,_keynametable
-	call	addatohl				; pointer to character
+	call	adda2hl				; pointer to character
 	bit		6,(hl)					; check if it's a wide name
 	ret		z						; return if not wide
 	ld		a,(hl)					; get index of wide name
@@ -99,12 +100,12 @@ _bit2index:
 
 
 _keynametable:
-	.byte	64						; marker bit 6 + offset into _keynametablewide
+	.byte	64+0					; marker bit 6 + offset into _keynametablewide
 	.asc	"ZXCV"
 	.asc	"ASDFG"
 	.asc	"QWERT"
-	.asc	"12345"
-	.asc	"09876"
+	.asc	"1"+$80,"2"+$80,"3"+$80,"4"+$80,"5"+$80
+	.asc	"0"+$80,"9"+$80,"8"+$80,"7"+$80,"6"+$80
 	.asc	"POIUY"
 	.byte	64+5
 	.asc	"LKJH"
