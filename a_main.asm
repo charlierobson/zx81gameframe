@@ -41,9 +41,9 @@ pr_cc	.byte	188
 s_posn	.byte	33 
 s_psn1	.byte	24 
 cdflag	.byte	64 
-prtbuff	.fill	32,0
-prbend	.byte	$76
-membot	.fill	32,0
+prtbuff	.fill	32,0		; if you're tight on memory there's 65 bytes free here ;)
+prbend	.byte	$76			;
+membot	.fill	32,0		;
 
 
 ;-------------------------------------------------------------------------------
@@ -54,9 +54,12 @@ _line1:
 	.word	_line1end-$-2
 	.byte	$ea
 
-	; enable our custom display handler. runs input processing in the vertical
-	; sync and enables use of IY register.
+	; enable our custom display handler.
+	; runs input processing in the vertical sync and enables use of IY register.
 	ld 		ix,DISPLAY._GENERATE
+
+	ld		hl,AYFXPLAYER._soundbank
+	call	AYFXPLAYER._INIT
 
 	; this is a typical game program cycle.
 
@@ -78,9 +81,11 @@ _line1:
 	.include general.asm
 	.include input.asm
 	.include displaydriver.asm
+	.include ayfxplayer.asm
 
 
 dfile:
+	; empty d-file. You can put a sketchy screen here to be shown at load time.
 	.repeat 24
 	  .byte $76
 	  .fill 32,0
@@ -98,7 +103,7 @@ _line10:
 	.byte	0,2
 	.word	_line10end-$-2
 	.byte	$F9,$D4,$C5,$0B				; RAND USR VAL "
-	.byte	$1D,$22,$21,$1D,$20	; 16514 
+	.byte	$1D,$22,$21,$1D,$20			; 16514 
 	.byte	$0B							; "
 	.byte	076H						; N/L
 _line10end:

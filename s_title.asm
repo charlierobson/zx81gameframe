@@ -5,6 +5,9 @@
 _run:
 	call	INPUT._settitle
 
+	ld		a,1
+	call	AYFXPLAYER._PLAY
+
 	ld		hl,0
 	ld		(frames),hl
 

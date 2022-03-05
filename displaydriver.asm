@@ -5,6 +5,17 @@
 ; To install the display driver simply:
 ;	ld 	ix,DISPLAY._GENERATE
 
+; Special thanks to:
+;
+; *******************************
+; * ZX81 Lo-Res Display Drivers *
+; *******************************
+; (c)2022 Paul Farrow, www.fruitcake.plus.com
+;
+; You are free to use and modify these drivers in your own programs.
+
+#define BOTTOM_BORDER_USER_ACTIONS
+
 _GENERATE_VSYNC:
 	IN		A,($FE)						; Start the VSync pulse.
 
@@ -57,7 +68,8 @@ _GENERATE:
 
 	OUT		($FE),A						; Turn on the NMI generator to commence generating the bottom border lines.
 
-	CALL	DO_BOTTOM_USER_ACTIONS		; The user actions must not take longer than the time to generate the bottom border at either 50Hz or 60Hz.
+	; The user actions must not take longer than the time to generate the bottom border at either 50Hz or 60Hz.
+	CALL	AYFXPLAYER._FRAME			; (1-9 scanlines)
 
 	LD		IX,_GENERATE_VSYNC			; Set the display routine pointer to generate the VSync pulse next.
 	JP		$02A4						; Return to the user program.

@@ -10,6 +10,9 @@ _run:
 	ld		bc,_textend-_text
 	ldir
 
+	ld		a,3
+	call	AYFXPLAYER._PLAY
+
 _loop:
 	call	framesync
 
@@ -33,6 +36,9 @@ _loop:
 	and		3
 	cp		1
 	jr		nz,_loop
+
+	ld		a,2
+	call	AYFXPLAYER._PLAY
 
 	ret
 

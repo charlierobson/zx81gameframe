@@ -9,6 +9,9 @@ _run:
 	ld		bc,32
 	ldir
 
+	ld		a,1
+	call	AYFXPLAYER._PLAY
+
 	xor		a						; clear key line
 	ld		hl,dfile+1+33
 	ld		de,dfile+1+34

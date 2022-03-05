@@ -26,6 +26,9 @@ _run:
 	pop		bc
 	djnz	{-}
 
+	ld		a,1
+	call	AYFXPLAYER._PLAY
+
 _loop:
 	call	framesync
 
