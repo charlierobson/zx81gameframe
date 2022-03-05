@@ -21,7 +21,7 @@ _run:
 
 _text:
 			;--------========--------========
-	.asc	"game over.                      "
+	.asc	"game over.       wait 2 seconds."
 _textend:
 
 .endmodule

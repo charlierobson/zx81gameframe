@@ -5,10 +5,14 @@
 
 _settitle:
 	ld		hl,_titleinput
+	ld		a,(_fire)
+	ld		(_begin),a
 	jr		{+}
 
 _setgame:
 	ld		hl,_gameinput
+	ld		a,(_begin)
+	ld		(_fire),a
 +:	ld		(_inputptr),hl
 	ret
 
@@ -135,8 +139,8 @@ _keynametablewide:
 ; output trigger impulse
 
 _titleinput:
-	.byte	%00001000,$7F,%00000001,0		; startgame	    (SP)
-	.byte	%11111111,$FB,%00001000,0		; redefine	    (R)
+	.byte	%00001000,$7F,%00000001,0		; begin        (SP)
+	.byte	%11111111,$FB,%00001000,0		; redefine      (R)
 	.byte	%11111111,$DF,%00000100,0		; instructions  (I)
 	.byte	%11111111,$FE,%11111111,0
 	.byte	%11111111,$FE,%11111111,0
