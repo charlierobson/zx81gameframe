@@ -5,14 +5,14 @@
 
 _settitle:
 	ld		hl,_titleinput
-	ld		a,(_begin)
-	ld		(_fire),a
+	ld		a,(_fire)
+	ld		(_begin),a
 	jr		{+}
 
 _setgame:
 	ld		hl,_gameinput
-	ld		a,(_fire)
-	ld		(_begin),a
+	ld		a,(_begin)
+	ld		(_fire),a
 +:	ld		(_inputptr),hl
 	ret
 
