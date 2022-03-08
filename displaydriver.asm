@@ -5,7 +5,7 @@
 ; To install the display driver simply:
 ;	ld 	ix,DISPLAY._GENERATE
 
-; Special thanks to:
+; Special thanks go to Paul Farrow.
 ;
 ; *******************************
 ; * ZX81 Lo-Res Display Drivers *
@@ -13,8 +13,6 @@
 ; (c)2022 Paul Farrow, www.fruitcake.plus.com
 ;
 ; You are free to use and modify these drivers in your own programs.
-
-#define BOTTOM_BORDER_USER_ACTIONS
 
 _GENERATE_VSYNC:
 	IN		A,($FE)						; Start the VSync pulse.
@@ -29,40 +27,41 @@ _GENERATE_VSYNC:
 	INC		HL
 	LD		(frames),hl
 
-.ifdef TOP_BORDER_USER_ACTIONS
-	LD		A,(margin)					; Fetch or specify the number of lines in the top border (must be a multiple of 8).
-	NEG									; The value could be precalculated to avoid the need for the NEG and INC A here.
-	INC		A
-	EX		AF,AF'
-
-	OUT		($FE),A						; Turn on the NMI generator to commence generating the top border lines.
-
-	;		OUT	($FD),A					; @ Turn off the NMI generator to visually see how long the user actions take, i.e. how many extra top border lines it introduces.
-	CALL	DO_TOP_USER_ACTIONS			; The user actions must not take longer than the time to generate the top border at either 50Hz or 60Hz.
-	;		OUT	($FE),A					; @ Turn on the NMI generator to stop timing the user actions.
-
-	LD		IX,_GENERATE			; Set the display routine pointer to generate the main picture area next.
-	JP		$02A4						; Return to the user program.
-
-.else
+	; top border
 
 	LD		A,(margin)					; Fetch or specify the number of lines in the top border (must be a multiple of 8).
 	LD		IX,_GENERATE				; Set the display routine pointer to generate the main picture area next.
 	JP		$029E						; Commence generating the top border lines and return to the user program.
 
-.endif
+	; end top border
+
+LBUF:
+	LD		R,A							; HFILE address LSB -> R
+	.fill	32,0
+	RET		NZ							; always returns
+
 
 _GENERATE:
-	LD		A,R							; Fine tune delay.
+	LD		B,7
+-:	DJNZ	{-}
 
-	LD		BC,$1901					; B=Row count (24 in main display + 1 for the border). C=Scan line counter for the border 'row'.
-	LD		A,$F5						; Timing constant to complete the current border line.
-	CALL	$02B5						; Complete the current border line and then generate the main display area.
+	DEC		B							; 0->ff resets Z flag, for ret nz instruction in d-file
+	LD		HL,_screen
+	LD		DE,$20
+	LD		B,$C0
 
-.ifdef BOTTOM_BORDER_USER_ACTIONS
+-:	LD		A,H
+	LD		I,A
+	LD		A,L
+	CALL	LBUF + $8000
+	ADD		HL,DE
+	DEC		B
+	JP		NZ,{-}
+
+	; bottom border
 
 	LD		A,(margin)					; Fetch or specify the number of lines in the bottom border (does not have to be a multiple of 8).
-	NEG									; The value could be precalculated to avoid the need for the NEG and INC A here.
+	NEG
 	INC		A
 	EX		AF,AF'
 
@@ -74,13 +73,11 @@ _GENERATE:
 	LD		IX,_GENERATE_VSYNC			; Set the display routine pointer to generate the VSync pulse next.
 	JP		$02A4						; Return to the user program.
 
-.else
+	; end bottom border
 
-	LD		A,(margin)					; Fetch or specify the number of lines in the bottom border (does not have to be a multiple of 8).
-	LD		IX,_GENERATE_VSYNC			; Set the display routine pointer to generate the VSync pulse next.
-	JP		$029E						; Commence generating the bottom border lines and return to the user program.
 
-.endif
-
+	.align	32
+_screen:
+	.incbin	hrmonk.bin
 
 .endmodule
